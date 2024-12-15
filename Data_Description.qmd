@@ -276,6 +276,7 @@ for example here are some countries:
     - **Oil and Gas Extraction**.
 
 Each country or region acts as a node in the global supply and use network, interacting with others through imports and exports.
+
 ```{r}
 sectors_table <- data.frame(
   Sector = c(
@@ -340,9 +341,9 @@ print(sectors_table)
 - **Variables**:
     - Represents normalized flows of intermediate goods/services between sectors.
     - Each entry \( A_{ij} \): The fraction of sector \( i \)'s output required to produce one unit of output in sector \( j \).
-- **How to Use**:
-    - Use \( A \) to compute direct and indirect production dependencies.
-    - Combine with \( x \) (total output) to calculate \( Z \) (inter-industry flows): \( Z = A \times x \).
+- **How we might use it**:
+    - Using \( A \) to compute direct and indirect production dependencies.
+    - Combining with \( x \) (total output) to calculate \( Z \) (inter-industry flows): \( Z = A \times x \).
 
 ---
 
@@ -351,9 +352,9 @@ print(sectors_table)
 - **Variables**:
     - Represents the monetary flows of goods and services between sectors.
     - Each entry \( Z_{ij} \): The value of goods/services sector \( i \) delivers to sector \( j \).
-- **How to Use**:
-    - Analyze economic dependencies between sectors.
-    - Combine with \( Y \) (final demand) to calculate total output: \( x = Z + Y \).
+- **How we might use it**:
+    - Analysing economic dependencies between sectors.
+    - Combining with \( Y \) (final demand) to calculate total output: \( x = Z + Y \).
 
 ---
 
@@ -366,7 +367,7 @@ print(sectors_table)
         - Investments
         - Exports
     - Rows: Sectors, Columns: Demand categories.
-- **How to Use**:
+- **How we might use it**:
     - Use \( Y \) to assess consumption patterns.
     - Combine with \( Z \) to compute total sectoral outputs: \( x = Z + Y \).
 
@@ -376,7 +377,7 @@ print(sectors_table)
 
 - **Variables**:
     - A vector where each entry \( x_i \) represents the total output of sector \( i \).
-- **How to Use**:
+- **How we might use it**:
     - \( x \) is derived from \( Z \) and \( Y \).
     - Essential for calculating emissions or resource use per unit output.
 
@@ -386,7 +387,7 @@ print(sectors_table)
 
 - **Variables**:
     - Lists sector names and unique identifiers (e.g., ISIC codes).
-- **How to Use**:
+- **How we might use it**:
     - Map codes to sectoral data in \( Z \), \( A \), and \( Y \).
     - Use for labeling or aggregating sectors in analysis.
 
@@ -396,7 +397,7 @@ print(sectors_table)
 
 - **Variables**:
     - Similar to `industries.txt`, but focuses on individual products.
-- **How to Use**:
+- **How we might use it**:
     - Link product codes to flows in \( Z \) and \( Y \).
     - Useful for detailed product-level analysis.
 
@@ -406,7 +407,7 @@ print(sectors_table)
 
 - **Variables**:
     - Specifies the units for economic (e.g., USD, EUR) or physical variables (e.g., tons, GWh).
-- **How to Use**:
+- **How we might use it**:
     - Verify consistency of units when combining matrices.
     - Convert units if integrating with other datasets.
 
