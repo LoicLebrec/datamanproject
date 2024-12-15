@@ -14,7 +14,6 @@ The source code for this project is available at:
 [GitHub Repository](<https://github.com/LoicLebrec/datamanproject.git>)  
 
 
-
 ---
 
 ## Data Sources
@@ -33,8 +32,7 @@ The **EXIOBASE v3.8** dataset is a Multi-Regional Input-Output (MRIO) database t
 
 #### **Dataset Highlights**
 1. **Temporal Scope:**
-   - The base year is 2012, with data extrapolated and now-casted up to 2021.
-   - Updates include macroeconomic data (UN), trade (Comtrade/BACI), energy balances (IEA), and emissions (Edgar Database, PRIMAST).
+The dataset encompasses a temporal range starting from the base year of 2012, with data extrapolated and now-casted up to 2021. Key updates include information from global macroeconomic sources like the United Nations (UN), international trade data from Comtrade/BACI, energy balance statistics from the International Energy Agency (IEA), and emissions data drawn from Edgar Database and PRIMAST. 
 
 2. **Key Features:**
    - **Macroeconomic and Trade Data:**  
@@ -56,6 +54,7 @@ The **EXIOBASE v3.8** dataset is a Multi-Regional Input-Output (MRIO) database t
 #### **Public vs Private Dataset**
 - The **public version**, accessible via Zenodo, includes aggregated data due to licensing restrictions.
 - The **private version** contains more detailed working files but requires licensed access to specific data sources, such as energy (IEA) and material flows.
+
 ```{r}
 # List all files in the current working directory
 files_in_directory <- list.files()
