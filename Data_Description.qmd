@@ -413,25 +413,20 @@ print(sectors_table)
 
 ---
 
-### Applications
+## Research Question Description
 
-1. **Economic Analysis**:
-    - Use \( Z \), \( Y \), and \( x \) to model production systems and supply chains.
-2. **Environmental Analysis**:
-    - Combine \( x \) with environmental extensions (e.g., emissions or resource use data) for impact assessments.
-3. **Policy Insights**:
-    - Analyze the effects of consumption and production shifts across sectors and regions.
+In this project, we analyze carbon emissions across countries using the EXIOBASE v3.8 Multi-Regional Input-Output (MRIO) database. Our objective is to understand how emissions are distributed globally, identify sectoral and economic drivers, and explore the role of international trade in shaping national carbon footprints. This spans from 1998 to 2021, providing insights into long-term trends and country-specific differences.
 
----
+Our main research question is: How do carbon emissions vary across countries, and what are the main drivers of these differences? 
 
-### Example Workflow
+We aim to quantify emissions for each country, assess the contributions of key sectors, and evaluate temporal trends. Additionally, we explore how global trade influences emissions, emphasizing the interconnected nature of economies in the context of supply chains.
 
-1. Load \( A \), \( Z \), \( Y \), and \( x \) matrices into R or Python.
-2. Compute direct and total impacts using Leontief's model:
-   \[
-   x = (I - A)^{-1} \cdot Y
-   \]
-3. Use \( Z \) and sectoral emissions data to compute carbon footprints or resource dependencies.
+The EXIOBASE v3.8 dataset offers a comprehensive view of economic activities and environmental impacts for us, as it combines inter-industry flows, final demand structures, and environmental extensions, such as CO emissions.
 
+Our analysis will be guided by some steps. First, we started to prepare the data by extracting and cleaning matrices such as inter-industry flows, final demand, and emissions data. Next, we will then calculate emissions per country and sector, identifying the primary drivers at both levels. Temporal trends are then analyzed to evaluate the impact of factors like economic growth, technological shifts, and policy measures. In a final step and if time allows, we investigate the role of international trade by quantifying the emissions embodied in imports and exports, highlighting the global redistribution of carbon footprints.
+
+The expected outcomes of this research include a comprehensive comparison of carbon emissions across countries and regions, identifying high-emission sectors like manufacturing, energy, and agriculture in a students project. We will also aim to reveal trends in emissions over time, illustrating differences between developed and developing economies. By additionally analyzing trade impacts, we aim to uncover the shared responsibilities of nations within global supply chains.
+
+By using the detailed data in EXIOBASE v3.8, we try to offer a robust analysis of global carbon emissions, helping to guide the transition to a more sustainable and equitable future.
 
 
