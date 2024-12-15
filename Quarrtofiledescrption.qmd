@@ -1,6 +1,6 @@
 ---
 title: "EXIOBASE v3.8 Project Description"
-author: "Loïc Lebrec Maximilian Stein"
+author: "Loïc Lebrec & Maximilian Stein"
 format:
   html:
     toc: true
