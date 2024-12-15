@@ -1,0 +1,437 @@
+---
+title: "EXIOBASE v3.8 Project Description"
+author: "Loïc Lebrec Maximilian Stein"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# Project Description
+
+## GitHub Repository
+The source code for this project is available at:  
+[GitHub Repository](<https://github.com/LoicLebrec/datamanproject.git>)  
+
+
+
+---
+
+## Data Sources
+
+### Links to Data
+The primary dataset used in this project is sourced from:
+1. **EXIOBASE v3.8 Dataset**  
+   Available on Zenodo: [https://zenodo.org/records/5589597](https://zenodo.org/records/5589597)  
+
+
+---
+
+### Short Description of the Dataset
+
+The **EXIOBASE v3.8** dataset is a Multi-Regional Input-Output (MRIO) database that provides a comprehensive view of economic and environmental data. It combines detailed accounts of production, trade, and consumption with environmental impacts across multiple regions and sectors. Developed as part of several EU-funded projects (e.g., DESIRE, EXIOPOL, and CREEA), EXIOBASE serves as a valuable tool for researchers and policymakers focused on resource efficiency, environmental sustainability, and economic analysis.
+
+#### **Dataset Highlights**
+1. **Temporal Scope:**
+   - The base year is 2012, with data extrapolated and now-casted up to 2021.
+   - Updates include macroeconomic data (UN), trade (Comtrade/BACI), energy balances (IEA), and emissions (Edgar Database, PRIMAST).
+
+2. **Key Features:**
+   - **Macroeconomic and Trade Data:**  
+     Combines global macroeconomic trends and trade flows updated to 2018, with projections up to 2022 based on IMF forecasts.
+   - **Energy and Emissions:**  
+     Includes detailed CO\(_2\) fossil fuel emissions up to 2019 and other greenhouse gases (GHGs) updated to 2017.
+   - **Land, Material, and Water:**  
+     Provides estimates up to 2013, relying on now-casts for later years.
+
+3. **Applications:**  
+   - Environmental footprint analysis.
+   - Sectoral economic studies.
+   - Resource efficiency and policy modeling.
+
+4. **Data Quality and Limitations:**  
+   - The data rely heavily on interpolation and extrapolation, particularly for years after 2011. While suitable for global and national analyses, uncertainties increase for more granular levels.
+
+
+#### **Public vs Private Dataset**
+- The **public version**, accessible via Zenodo, includes aggregated data due to licensing restrictions.
+- The **private version** contains more detailed working files but requires licensed access to specific data sources, such as energy (IEA) and material flows.
+```{r}
+# List all files in the current working directory
+files_in_directory <- list.files()
+
+# Filter for files with a `.txt` extension
+txt_files <- files_in_directory[grepl("\\.txt$", files_in_directory)]
+
+# Check if .txt files are found
+if (length(txt_files) == 0) {
+  stop("No .txt files found in the current directory.")
+}
+
+# Print the list of `.txt` files
+txt_files
+```
+
+
+```{r}
+# Import Y.txt
+Y_data <- read.table("Y.txt", header = TRUE, sep = "\t") # Adjust `sep` if needed
+
+```
+```{r}
+# Import finaldemands.txt
+finaldemands_data <- read.table("finaldemands.txt", header = TRUE, sep = "\t")
+
+
+# Import industries.txt
+industries_data <- read.table("industries.txt", header = TRUE, sep = "\t")
+
+
+# Import products.txt
+products_data <- read.table("products.txt", header = TRUE, sep = "\t")
+
+# Import unit.txt
+unit_data <- read.table("unit.txt", header = TRUE, sep = "\t")
+
+# Import x.txt
+x_data <- read.table("x.txt", header = TRUE, sep = "\t")
+
+
+# Import Y.txt
+Y_data <- read.table("Y.txt", header = TRUE, sep = "\t")
+# Import A.txt
+A_data <- read.table("A.txt", header = TRUE, sep = "\t")
+
+```
+```{r}
+# Import individual files
+finaldemands_data <- read.table("finaldemands.txt", header = TRUE, sep = "\t")
+industries_data <- read.table("industries.txt", header = TRUE, sep = "\t")
+products_data <- read.table("products.txt", header = TRUE, sep = "\t")
+unit_data <- read.table("unit.txt", header = TRUE, sep = "\t")
+x_data <- read.table("x.txt", header = TRUE, sep = "\t")
+Y_data <- read.table("Y.txt", header = TRUE, sep = "\t")
+A_data <- read.table("A.txt", header = TRUE, sep = "\t")
+# Combine all data into a list for summarization
+data_list <- list(
+  "finaldemands.txt" = finaldemands_data,
+  "industries.txt" = industries_data,
+  "products.txt" = products_data,
+  "unit.txt" = unit_data,
+  "x.txt" = x_data,
+  "Y.txt" = Y_data,
+  "A.txt" = A_data 
+)
+
+# Summarize each dataset
+summary_data <- lapply(names(data_list), function(name) {
+  data <- data_list[[name]]
+  data.frame(
+    File = name,
+    Rows = nrow(data),
+    Columns = ncol(data),
+    Column_Names = paste(colnames(data), collapse = ", ")
+  )
+})
+
+# Combine summaries into a single table
+summary_table <- do.call(rbind, summary_data)
+
+# Print the summary table
+print(summary_table)
+```
+```{r}
+# Count rows efficiently
+file_name <- "Z.txt"
+
+# Step 1: Read header to get column names
+header <- readLines(file_name, n = 1)
+col_names <- strsplit(header, "\t")[[1]]
+
+# Step 2: Count total lines in the file
+line_count <- length(readLines(file_name))
+
+# Subtract 1 to account for the header row
+total_rows <- line_count - 1
+
+# Step 3: Create the summary
+Z_summary <- data.frame(
+  File = "Z.txt",
+  Rows = total_rows,
+  Columns = length(col_names),
+  Column_Names = paste(col_names, collapse = ", ")
+)
+
+# Print the summary
+print(Z_summary)
+```
+```{r}
+# Count rows efficiently for A.txt
+file_name <- "A.txt"
+
+# Step 1: Read header to get column names
+header <- readLines(file_name, n = 1)
+col_names <- strsplit(header, "\t")[[1]]
+
+# Step 2: Count total lines in the file
+line_count <- length(readLines(file_name))
+
+# Subtract 1 to account for the header row
+total_rows <- line_count - 1
+
+# Step 3: Create the summary
+A_summary <- data.frame(
+  File = "A.txt",
+  Rows = total_rows,
+  Columns = length(col_names),
+  Column_Names = paste(col_names, collapse = ", ")
+)
+
+# Print the summary
+print(A_summary)
+```
+```{r}
+# Combine existing summaries into a list
+summary_data <- list(
+  A_summary,
+  data.frame(
+    File = "finaldemands.txt",
+    Rows = nrow(finaldemands_data),
+    Columns = ncol(finaldemands_data),
+    Column_Names = paste(colnames(finaldemands_data), collapse = ", ")
+  ),
+  data.frame(
+    File = "industries.txt",
+    Rows = nrow(industries_data),
+    Columns = ncol(industries_data),
+    Column_Names = paste(colnames(industries_data), collapse = ", ")
+  ),
+  data.frame(
+    File = "products.txt",
+    Rows = nrow(products_data),
+    Columns = ncol(products_data),
+    Column_Names = paste(colnames(products_data), collapse = ", ")
+  ),
+  data.frame(
+    File = "unit.txt",
+    Rows = nrow(unit_data),
+    Columns = ncol(unit_data),
+    Column_Names = paste(colnames(unit_data), collapse = ", ")
+  ),
+  data.frame(
+    File = "x.txt",
+    Rows = nrow(x_data),
+    Columns = ncol(x_data),
+    Column_Names = paste(colnames(x_data), collapse = ", ")
+  ),
+  data.frame(
+    File = "Y.txt",
+    Rows = nrow(Y_data),
+    Columns = ncol(Y_data),
+    Column_Names = paste(colnames(Y_data), collapse = ", ")
+  ),
+  Z_summary
+)
+
+# Combine all summaries into a single data frame
+summary_table <- do.call(rbind, summary_data)
+
+# Print the summary table
+print(summary_table)
+
+# Optional: Save the summary table
+write.csv(summary_table, "summary_table.csv", row.names = FALSE)
+```
+
+## data description
+## Description of Variables in MRSIO Files
+
+The MRSIO dataset consists of multiple files, each containing specific variables. These variables capture economic and physical flows between regions, sectors, and final consumers. We have those sets from year 1998 to 2022 for each country. 
+- **Individual Countries**:
+for example here are some countries: 
+    - **USA**: Represents the United States
+    - **DEU**: Represents Germany.
+    - **CHN**: Represents China.
+    - **FRA**: Represents France.
+    - **BRA**: Represents Brazil.
+
+- **Aggregate Regions**:
+    - **ROW**: "Rest of the World," which aggregates smaller economies not individually represented.
+    - **EU27**: European Union member countries.
+- **Examples of Sectors**
+
+ **Agriculture**:
+    - **Crop Production** : Includes cereals, fruits, vegetables, etc.
+    - **Livestock** : Covers animal husbandry and fisheries.
+
+- **Manufacturing**:
+    - **Chemicals and Pharmaceuticals** 
+    - **Textile Manufacturing** .
+
+- **Services**:
+    - **Retail and Wholesale Trade**.
+    - **Financial Services** .
+
+- **Energy**:
+    - **Electricity Production** : Includes renewable and non-renewable electricity generation.
+    - **Oil and Gas Extraction**.
+
+Each country or region acts as a node in the global supply and use network, interacting with others through imports and exports.
+```{r}
+sectors_table <- data.frame(
+  Sector = c(
+    "Cereal grains nec",
+    "Cereal grains nec",
+    "Cereal grains nec",
+    "Cereal grains nec",
+    "Iron and steel",
+    "Iron and steel",
+    "Iron and steel",
+    "Chemical products nec",
+    "Chemical products nec",
+    "Bovine cattle, sheep, and goats",
+    "Bovine cattle, sheep, and goats",
+    "Land transport",
+    "Land transport",
+    "Land transport"
+  ),
+  Variable = c(
+    "Inter-industry flow (Z_ij)",
+    "Final demand (Y)",
+    "Land use",
+    "Emissions",
+    "Inter-industry flow (Z_ij)",
+    "Material use",
+    "Energy use",
+    "Energy use",
+    "Emissions",
+    "Emissions",
+    "Land use",
+    "Final demand (Y)",
+    "Energy use",
+    "Emissions"
+  ),
+  Unit_of_Measure = c(
+    "Million USD",
+    "Million USD",
+    "Hectares",
+    "Metric Tons CO2-eq",
+    "Million USD",
+    "Metric Tons (t)",
+    "GWh",
+    "GWh",
+    "Metric Tons CO2-eq",
+    "Metric Tons CO2-eq",
+    "Hectares",
+    "Million USD",
+    "GWh",
+    "Metric Tons CO2-eq"
+  )
+)
+
+# Print the table
+print(sectors_table)
+```
+
+
+---
+
+### 1. **A.txt**: Technical Coefficients Matrix
+
+- **Variables**:
+    - Represents normalized flows of intermediate goods/services between sectors.
+    - Each entry \( A_{ij} \): The fraction of sector \( i \)'s output required to produce one unit of output in sector \( j \).
+- **How to Use**:
+    - Use \( A \) to compute direct and indirect production dependencies.
+    - Combine with \( x \) (total output) to calculate \( Z \) (inter-industry flows): \( Z = A \times x \).
+
+---
+
+### 2. **Z.txt**: Inter-Industry Flow Matrix
+
+- **Variables**:
+    - Represents the monetary flows of goods and services between sectors.
+    - Each entry \( Z_{ij} \): The value of goods/services sector \( i \) delivers to sector \( j \).
+- **How to Use**:
+    - Analyze economic dependencies between sectors.
+    - Combine with \( Y \) (final demand) to calculate total output: \( x = Z + Y \).
+
+---
+
+### 3. **Y.txt**: Final Demand Matrix
+
+- **Variables**:
+    - Represents the demand for goods and services by:
+        - Households
+        - Government
+        - Investments
+        - Exports
+    - Rows: Sectors, Columns: Demand categories.
+- **How to Use**:
+    - Use \( Y \) to assess consumption patterns.
+    - Combine with \( Z \) to compute total sectoral outputs: \( x = Z + Y \).
+
+---
+
+### 4. **x.txt**: Total Output Vector
+
+- **Variables**:
+    - A vector where each entry \( x_i \) represents the total output of sector \( i \).
+- **How to Use**:
+    - \( x \) is derived from \( Z \) and \( Y \).
+    - Essential for calculating emissions or resource use per unit output.
+
+---
+
+### 5. **industries.txt**: Industry Names and Codes
+
+- **Variables**:
+    - Lists sector names and unique identifiers (e.g., ISIC codes).
+- **How to Use**:
+    - Map codes to sectoral data in \( Z \), \( A \), and \( Y \).
+    - Use for labeling or aggregating sectors in analysis.
+
+---
+
+### 6. **products.txt**: Product Names and Codes
+
+- **Variables**:
+    - Similar to `industries.txt`, but focuses on individual products.
+- **How to Use**:
+    - Link product codes to flows in \( Z \) and \( Y \).
+    - Useful for detailed product-level analysis.
+
+---
+
+### 7. **unit.txt**: Measurement Units
+
+- **Variables**:
+    - Specifies the units for economic (e.g., USD, EUR) or physical variables (e.g., tons, GWh).
+- **How to Use**:
+    - Verify consistency of units when combining matrices.
+    - Convert units if integrating with other datasets.
+
+---
+
+### Applications
+
+1. **Economic Analysis**:
+    - Use \( Z \), \( Y \), and \( x \) to model production systems and supply chains.
+2. **Environmental Analysis**:
+    - Combine \( x \) with environmental extensions (e.g., emissions or resource use data) for impact assessments.
+3. **Policy Insights**:
+    - Analyze the effects of consumption and production shifts across sectors and regions.
+
+---
+
+### Example Workflow
+
+1. Load \( A \), \( Z \), \( Y \), and \( x \) matrices into R or Python.
+2. Compute direct and total impacts using Leontief's model:
+   \[
+   x = (I - A)^{-1} \cdot Y
+   \]
+3. Use \( Z \) and sectoral emissions data to compute carbon footprints or resource dependencies.
+
+
+
