@@ -1,0 +1,19 @@
+install.packages(c("data.table", "dplyr", "readr"))
+library(data.table)
+
+# Read files efficiently
+A <- fread("A.txt", sep = "\t", header = TRUE)  # Adjust `sep` for delimiter
+Y <- fread("Z.txt", sep = "\t", header = TRUE)
+
+# Quick overview of data
+print(dim(A))
+print(dim(Y))
+library(readr)
+
+# Read files with readr
+A <- read_delim("A.txt", delim = "\t")  # Adjust `delim` for delimiter
+Y <- read_delim("Y.txt", delim = "\t")
+
+# Quick overview of data
+glimpse(A)
+glimpse(Y)
