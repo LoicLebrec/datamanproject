@@ -1,0 +1,96 @@
+```{r}
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(plotly)
+
+# Load and prepare data
+years <- 2015:2020
+input_files <- paste0("FR_", years, ".xls")
+combined_data <- data.frame()
+
+for (year in years) {
+  file_name <- paste0("FR_", year, ".xls")
+  
+  if (file.exists(file_name)) {
+    # Read the specified sheet
+    data <- read_excel(file_name, sheet = "DiffFinInd")
+    
+    # Add a Year column
+    data$Year <- year
+    
+    # Combine data
+    combined_data <- bind_rows(combined_data, data)
+  } else {
+    message(paste("File", file_name, "does not exist. Skipping."))
+  }
+}
+
+# Use "UT total" as the correct value column
+combined_data <- combined_data %>%
+  rename(Value = `UT total`)  # Update this line to rename the correct column
+
+# Get 10 random sector names
+random_sectors <- sample(unique(combined_data$Name), 10)
+
+# Display the random sectors with numbers
+cat("Here are 10 random sector names to choose from:\n")
+for (i in seq_along(random_sectors)) {
+  cat(paste(i, "-", random_sectors[i], "\n"))
+}
+
+# Save the dataset for the next chunk
+save(combined_data, random_sectors, file = "prepared_data.RData")
+
+```
+```{r}
+# Load the prepared data
+load("prepared_data.RData")
+
+# Print random sectors to confirm they are valid
+print(random_sectors)
+
+# Prompt user to select a sector by number
+selected_index <- as.numeric(readline(prompt = "Enter the number corresponding to the sector you'd like to view: "))
+
+# Validate the input
+if (selected_index < 1 || selected_index > length(random_sectors) || is.na(selected_index)) {
+  cat("Invalid selection. Please run the program again and select a valid number.\n")
+} else {
+  # Get the selected sector name
+  selected_sector <- random_sectors[selected_index]
+  cat("Selected sector:", selected_sector, "\n")
+  
+  # Filter data for the selected sector
+  filtered_data <- combined_data %>%
+    filter(Name == selected_sector)
+  
+  # Check if the filtered data is empty
+  if (nrow(filtered_data) == 0) {
+    cat("No data found for the selected sector. Please try again.\n")
+  } else {
+    print(filtered_data)  # Debugging: View filtered data
+    
+    # Create an interactive plot
+    plot <- plot_ly(
+      data = filtered_data,
+      x = ~Year,
+      y = ~Value,
+      type = "scatter",
+      mode = "lines+markers",
+      line = list(color = "blue"),
+      marker = list(color = "red")
+    ) %>%
+      layout(
+        title = paste("Trend for Sector:", selected_sector),
+        xaxis = list(title = "Year"),
+        yaxis = list(title = "Value")
+      )
+    
+    # Display the plot
+    print(plot)
+  }
+}
+
+```
+
