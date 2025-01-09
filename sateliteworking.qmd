@@ -1,0 +1,48 @@
+---
+title: "Stressor Display"
+format: html
+---
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Load the dataset
+file_path <- "/home/loiclebrec/Desktop/datamanagementlinux/IOT_2018_pxp/satellite/D_pba_reg.txt"
+data <- read.table(file_path, header = TRUE, sep = "\t", check.names = FALSE)
+
+# Allow user to select a country
+available_countries <- colnames(data)[-1] # Exclude 'stressor' column
+cat("Available countries:\n")
+cat(available_countries, sep = ", ")
+
+selected_country <- readline(prompt = "Enter a country from the list above: ")
+
+# Validate the selection
+if (!(selected_country %in% available_countries)) {
+  stop("Invalid country selection. Please rerun and choose from the list.")
+}
+
+# Set stressors to display
+selected_stressors <- c("CO2 - combustion - air")
+
+# Select additional 4 random stressors (excluding the already selected one)
+set.seed(123) # Ensure reproducibility
+all_stressors <- setdiff(data$stressor, selected_stressors)
+random_stressors <- sample(all_stressors, 4)
+
+# Combine selected and random stressors
+display_stressors <- c(selected_stressors, random_stressors)
+
+# Filter the dataset
+filtered_data <- data %>%
+  filter(stressor %in% display_stressors) %>%
+  select(stressor, selected_country)
+
+# Display the filtered data
+knitr::kable(
+  filtered_data,
+  caption = paste("Selected Stressors for", selected_country),
+  format = "html"
+)
+```
