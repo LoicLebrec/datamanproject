@@ -48,7 +48,7 @@ The dataset encompasses a temporal range starting from the base year of 2012, wi
    - Resource efficiency and policy modeling.
 
 4. **Data Quality and Limitations:**  
-   - The data rely heavily on interpolation and extrapolation, particularly for years after 2011. While suitable for global and national analyses, uncertainties increase for more granular levels.
+   - The data relies heavily on interpolation and extrapolation, particularly for years after 2011. While suitable for global and national analyses, uncertainties increase for more granular levels.
 
 
 #### **Public vs Private Dataset**
@@ -102,6 +102,7 @@ Y_data <- read.table("Y.txt", header = TRUE, sep = "\t")
 A_data <- read.table("A.txt", header = TRUE, sep = "\t")
 
 ```
+
 ```{r}
 # Import individual files
 finaldemands_data <- read.table("finaldemands.txt", header = TRUE, sep = "\t")
@@ -139,6 +140,7 @@ summary_table <- do.call(rbind, summary_data)
 # Print the summary table
 print(summary_table)
 ```
+
 ```{r}
 # Count rows efficiently
 file_name <- "Z.txt"
@@ -164,6 +166,7 @@ Z_summary <- data.frame(
 # Print the summary
 print(Z_summary)
 ```
+
 ```{r}
 # Count rows efficiently for A.txt
 file_name <- "A.txt"
@@ -189,6 +192,7 @@ A_summary <- data.frame(
 # Print the summary
 print(A_summary)
 ```
+
 ```{r}
 # Combine existing summaries into a list
 summary_data <- list(
@@ -415,7 +419,7 @@ print(sectors_table)
 
 ## Research Question Description
 
-In this project, we analyze carbon emissions across countries using the EXIOBASE v3.8 Multi-Regional Input-Output (MRIO) database. Our objective is to understand how emissions are distributed globally, identify sectoral and economic drivers, and explore the role of international trade in shaping national carbon footprints. This spans from 1998 to 2021, providing insights into long-term trends and country-specific differences.
+In this project, we analyze carbon emissions across countries using the EXIOBASE v 3.8 Multi-Regional Input-Output (MRIO) database. Our objective is to understand how emissions are distributed globally, identify sectoral and economic drivers, and explore the role of international trade in shaping national carbon footprints. This spans from 1998 to 2021, providing insights into long-term trends and country-specific differences.
 
 Our main research question is: How do carbon emissions vary across countries, and what are the main drivers of these differences? 
 
@@ -428,5 +432,3 @@ Our analysis will be guided by some steps. First, we started to prepare the data
 The expected outcomes of this research include a comprehensive comparison of carbon emissions across countries and regions, identifying high-emission sectors like manufacturing, energy, and agriculture in a students project. We will also aim to reveal trends in emissions over time, illustrating differences between developed and developing economies. By additionally analyzing trade impacts, we aim to uncover the shared responsibilities of nations within global supply chains.
 
 By using the detailed data in EXIOBASE v3.8, we try to offer a robust analysis of global carbon emissions, helping to guide the transition to a more sustainable and equitable future.
-
-
