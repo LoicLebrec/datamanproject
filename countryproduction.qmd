@@ -1,0 +1,178 @@
+---
+title: "SUT Analysis: Production Evolution by Country and Sector"
+format: html
+jupyter: true
+---
+
+# Setup
+
+```{r}
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(plotly)
+
+# Set the folder containing country subfolders
+main_folder <- "~/Desktop/datamanagementlinux/datamanproject/SUT(1)"
+```
+
+
+```{r}
+# Display available country codes
+cat("Available countries:\n")
+for (i in seq_along(country_codes)) {
+  cat(paste(i, "-", country_codes[i], "\n"))
+}
+
+# Prompt the user to select a country by number
+selected_country_index <- as.numeric(readline(prompt = "Enter the number corresponding to the country you'd like to view (e.g., 1 for AT): "))
+
+# Validate the input
+if (is.na(selected_country_index) || selected_country_index < 1 || selected_country_index > length(country_codes)) {
+  stop("Invalid country selection. Please enter the number corresponding to a country from the list.")
+}
+
+# Get the selected country code
+selected_country <- country_codes[selected_country_index]
+cat("Selected country:", selected_country, "\n")
+
+
+```
+```{r}
+# Filter files for the selected country
+country_files <- excel_files[grepl(paste0("^", selected_country, "_"), basename(excel_files))]
+
+# Debug: Check filtered files
+if (length(country_files) == 0) {
+  stop("No files found for the selected country. Please check the country code or file structure.")
+} else {
+  cat("Files for the selected country:\n")
+  print(country_files)
+}
+
+
+```
+
+```{r}
+# Get all Excel files in the main folder
+excel_files <- list.files(main_folder, pattern = "\\.xls$", full.names = TRUE)
+
+# Extract unique country codes (first two letters of the filenames)
+country_codes <- unique(substr(basename(excel_files), 1, 2))
+
+# Display available country codes
+cat("Available countries:\n")
+for (i in seq_along(country_codes)) {
+  cat(paste(i, "-", country_codes[i], "\n"))
+}
+
+# Prompt the user to select a country by number
+selected_country_index <- as.numeric(readline(prompt = "Enter the number corresponding to the country you'd like to view (e.g., 1 for AT): "))
+
+# Validate the input
+if (is.na(selected_country_index) || selected_country_index < 1 || selected_country_index > length(country_codes)) {
+  stop("Invalid country selection. Please re-run this step.")
+}
+
+# Get the selected country code
+selected_country <- country_codes[selected_country_index]
+cat("Selected country:", selected_country, "\n")
+
+# Filter files for the selected country
+country_files <- excel_files[grepl(paste0("^", selected_country, "_"), basename(excel_files))]
+
+# Validate that files were found
+if (length(country_files) == 0) {
+  stop("No files found for the selected country. Please check the country code or file structure.")
+}
+
+# Debug: Print the filtered files
+cat("Files for the selected country:\n")
+print(country_files)
+
+```
+```{r}
+# Initialize an empty data frame
+combined_data <- data.frame()
+
+# Loop through each file and extract data
+for (file in country_files) {
+  # Extract the year from the filename
+  year <- as.numeric(gsub("\\D", "", basename(file)))
+  
+  # Read the Excel file and select the `DiffFinInd` sheet
+  data <- read_excel(file, sheet = "DiffFinInd")
+  
+  # Add the year column to the data
+  data$Year <- year
+  
+  # Combine the data into a single data frame
+  combined_data <- bind_rows(combined_data, data)
+}
+
+# Rename the column representing "UT total" to "Value" (adjust based on your actual column name)
+combined_data <- combined_data %>%
+  rename(Value = `UT total`)  # Adjust if necessary (e.g., `UT Total` or other variations)
+
+# Debug: Print the first few rows of the combined data
+cat("Combined data for", selected_country, ":\n")
+print(head(combined_data))
+
+```
+
+```{r}
+# Get unique sector names
+sector_names <- unique(combined_data$Name)
+
+# Randomly select 10 sector names
+random_sectors <- sample(sector_names, 10)
+
+# Display the random sectors
+cat("Here are 10 random sector names to choose from:\n")
+for (i in seq_along(random_sectors)) {
+  cat(paste(i, "-", random_sectors[i], "\n"))
+}
+
+# Prompt the user to select a sector by number
+selected_sector_index <- as.numeric(readline(prompt = "Enter the number corresponding to the sector you'd like to view: "))
+
+# Validate the input
+if (is.na(selected_sector_index) || selected_sector_index < 1 || selected_sector_index > length(random_sectors)) {
+  stop("Invalid sector selection. Please re-run this step.")
+}
+
+# Get the selected sector name
+selected_sector <- random_sectors[selected_sector_index]
+cat("Selected sector:", selected_sector, "\n")
+
+# Filter the data for the selected sector
+filtered_data <- combined_data %>%
+  filter(Name == selected_sector)
+
+# Debug: Print the filtered data
+cat("Filtered data for the selected sector:\n")
+print(head(filtered_data))
+
+```
+```{r}
+# Create an interactive plot
+plot <- plot_ly(
+  data = filtered_data,
+  x = ~Year,
+  y = ~Value,
+  type = "scatter",
+  mode = "lines+markers",
+  line = list(color = "blue"),
+  marker = list(color = "red")
+) %>%
+  layout(
+    title = paste("Production Evolution for", selected_sector, "in", selected_country),
+    xaxis = list(title = "Year"),
+    yaxis = list(title = "Production (UT total)")
+  )
+
+# Display the plot
+plot
+
+```
+
