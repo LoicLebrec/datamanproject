@@ -1,0 +1,95 @@
+---
+title: "Leontief Analysis"
+format: html
+---
+
+```{r}
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(MASS) # For pseudo-inverse computation
+
+# Define the file path and sheet name
+file_path <- "/home/loiclebrec/Desktop/datamanagementlinux/datamanagement/SIOT France 2020.xlsx"
+sheet_name <- "Sheet1"
+
+# Read the entire sheet
+df <- read_excel(file_path, sheet = sheet_name, col_names = FALSE)
+
+# Extract sector names from the first column (row 1 to 65)
+sector_names <- df[[1]][2:66]
+
+# Replace 'not available' with NA and then fill NAs with 0
+df <- df %>% mutate(across(everything(), ~ifelse(. == "not available", NA, .)))
+df <- df %>% mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
+
+# Convert the relevant part of the DataFrame to numeric (ignoring the first row and first column)
+numerical_data <- df[2:66, 2:67] %>% mutate(across(everything(), as.numeric))
+
+# Extract the total supply at basic prices (last column, excluding the first row)
+total_supply <- numerical_data[[65]]
+
+# Replace zeros in total_supply with a small number to avoid division by zero
+total_supply[total_supply == 0] <- 1e-10
+
+# Calculate the technical coefficients matrix (A)
+A_matrix <- sweep(numerical_data[, 1:65], 1, total_supply, "/")
+
+# Handle small numerical inaccuracies in (I - A) by thresholding small values to zero
+I <- diag(65)
+I_minus_A <- I - as.matrix(A_matrix)
+I_minus_A[abs(I_minus_A) < 1e-10] <- 0
+
+# Calculate the Leontief inverse (I - A)^-1 using pseudo-inverse
+leontief_inverse <- ginv(I_minus_A)
+
+# Convert to a DataFrame
+leontief_inverse_df <- as.data.frame(leontief_inverse)
+colnames(leontief_inverse_df) <- sector_names
+rownames(leontief_inverse_df) <- sector_names
+
+# Function to simulate a demand shock
+simulate_demand_shock <- function() {
+  cat("Available sectors:\n")
+  for (i in seq_along(sector_names)) {
+    cat(sprintf("%d: %s\n", i, sector_names[i]))
+  }
+
+  # Ask user for the sectors impacted
+  impacted_sectors <- as.integer(unlist(strsplit(readline("Enter the numbers of the sectors impacted, separated by commas: "), ",")))
+
+  # Ask user for the magnitudes of the shocks
+  shock_values <- as.numeric(unlist(strsplit(readline("Enter the demand shock values for the impacted sectors, separated by commas: "), ",")))
+
+  # Create a demand shock vector
+  demand_shock <- rep(0, 65)
+  demand_shock[impacted_sectors] <- shock_values
+
+  # Calculate the impact on each sector
+  impact <- leontief_inverse %*% demand_shock
+
+  # Create a DataFrame for the impact
+  impact_df <- data.frame(Sector = sector_names, Impact = impact)
+
+  cat("\nImpact on each sector:\n")
+  print(impact_df)
+
+  cat("\nTotal demand impact on each sector:\n")
+  print(sum(impact))
+}
+
+# Display the initial IO table
+cat("Initial IO Table:\n")
+print(head(df, 10))
+
+# Display the technical coefficients matrix
+cat("\nTechnical Coefficients Matrix (A):\n")
+print(A_matrix)
+
+# Display the Leontief inverse matrix
+cat("\nLeontief Inverse Matrix (I - A)^-1:\n")
+print(leontief_inverse_df)
+
+# Simulate a demand shock
+simulate_demand_shock()
+```
