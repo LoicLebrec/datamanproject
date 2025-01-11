@@ -1,0 +1,408 @@
+---
+title: "Data Management Final Project"
+subtitle: "Developing an Applied Tool for Visualising Economies Outputs"
+author: "Loïc Lebrec & Maximilian Stein"
+format: 
+  html:  default
+  docx:  default
+  pdf:   default
+---
+
+# 1. Introduction and Motivation
+
+Global warming and its associated environmental challenges remain among the most critical issues of our time. The rising temperatures not only disrupt ecosystems, biodiversity, and agricultural stability but also intensify natural disasters, freshwater scarcity, and social inequities. These cascading effects pose substantial threats to global economies, particularly by affecting production systems and trade dynamics. Entire regions risk becoming inhospitable, prompting large-scale migrations and heightening global tensions over dwindling resources.
+
+Understanding the intricate relationship between economic activity and environmental impacts, particularly CO₂ emissions, is vital for informed decision-making and policy development. Databases such as EXIOBASE offer detailed documentation on sectoral outputs, environmental pressures, and resource utilization, but the accessibility of such data for analysis remains a barrier. Researchers, policymakers, and stakeholders often lack intuitive tools for exploring these datasets, hindering their ability to identify trends and assess sectoral impacts over time.
+
+This paper addresses this gap by presenting a novel R-based Production Output Visualization Tool. This tool integrates environmentally extended multi-regional input-output (EE MRIO) data from EXIOBASE, spanning the period 1995 to 2022, into an accessible platform. It enables users to extract, process, and visualize sectoral economic outputs alongside their associated emissions. By converting complex datasets into interpretable tables and graphical outputs, the tool supports the analysis of trends, sector-specific dynamics, and intersectoral linkages.
+
+The methodology integrates input-output analysis to compute sectoral dependencies, followed by visualization modules for ex-post output trends. Additionally, practical applications are demonstrated for the economies of France, The Netherlands, and Germany, showcasing the tool’s adaptability. These use cases explore sector-specific production outputs, such as “Casting of metals” or “Electricity by hydro,” to illustrate the tool’s capability to track changes over time and examine economic interdependencies.
+
+Lastly, we shed an outlook on the Leontief Model as an advanced analytical extension to simulate demand shocks across sectors. While current computational constraints restrict the model’s scope, it provides a foundational framework for future research aimed at understanding ripple effects in larger datasets. By combining robust data processing with user-centric visualization, this paper bridges the gap between complex input-output datasets and actionable insights, advancing tools for tackling the pressing challenges posed by climate change and economic sustainability.
+
+# 2. Methodology and Data
+
+## 2.1 Input-Output Tables
+
+### Methodology: Input-Output Analysis
+
+Input-output analysis is a widely used framework for examining the flow of goods and services within an economy. This approach provides a detailed view of the relationships between various sectors, showing how the output from one sector serves as input for others. At its core, an input-output table is structured as a matrix, where the rows represent industries that supply goods and services, and the columns represent industries that purchase these goods and services. Each cell in the matrix quantifies the monetary value of transactions between the sectors.
+
+### Structure of Input-Output Tables
+
+In addition to capturing inter-industry transactions, input-output tables also include a section that records final demand. This component represents the consumption of goods and services by end users such as households, governments, and foreign markets (via exports). By combining intermediate demand (sales to other industries) and final demand (sales to end users), the table reveals the total output for each sector.
+
+For example, the agriculture sector's output includes goods sold to industries like manufacturing and services, as well as to households and other non-industrial consumers. Similarly, the services sector supplies inputs to other sectors while fulfilling direct consumer demands.
+
+#### Core Concepts
+
+1.  Sectors and Outputs: Each sector of the economy produces a certain level of output, which can be thought of as the total goods and services it provides. This output comprises both intermediate consumption (used by other industries) and final consumption (used by end users).
+2.  Intermediate Consumption: Industries depend on inputs from other sectors to produce their goods and services. These dependencies are captured in an input-output matrix, where each element represents the proportion of output from one sector required to produce goods or services in another sector.
+3.  Final Demand: Final demand refers to the consumption of goods and services outside of inter-industry trade. This includes household purchases, government expenditures, and exports. The combination of intermediate consumption and final demand determines the total production level required from each sector.
+
+#### Input-Output Analysis in Practice
+
+To determine the total production needed in an economy, input-output analysis connects the relationships between intermediate and final demand. By understanding how industries depend on one another and external consumers, the framework identifies how changes in one sector influence others. For example, an increase in final demand for manufacturing products will lead to increased activity in sectors supplying raw materials or services to manufacturing.
+
+#### Application to Economic and Environmental Analysis
+
+In this paper, we apply input-output analysis to investigate the interplay between economic activity and environmental outcomes, particularly CO₂ emissions. By integrating data on emissions intensity for each sector, we can estimate the total emissions associated with the production of goods and services across the economy. This analysis spans multiple years, enabling us to track trends and assess the impact of economic activities on emissions from 1995 to 2022.
+
+While datasets like EXIOBASE provide comprehensive information on sectoral outputs and emissions, the complexity of such data often limits its accessibility. To address this challenge, we have developed a user-friendly R-based application that transforms raw data into intuitive visualizations. This tool allows users to quickly explore sectoral economic outputs, emissions trends, and interdependencies within the economy, empowering more informed decision-making.
+
+By focusing on the integration of input-output analysis with accessible visualization, our approach bridges the gap between data availability and usability, supporting researchers, policymakers, and stakeholders in addressing the urgent challenges of climate change.
+
+## 2.2 Description of Data Set - The EXIOBASE v3.8 Database
+
+EXIOBASE is a robust and comprehensive environmentally extended multi-regional input-output (EE MRIO) database. It provides a detailed and extensive time-series dataset encompassing economic activities, environmental pressures, and resource utilization across 44 countries---comprising 28 EU member states, 16 major global economies, and five aggregated rest-of-the-world regions. Covering the period from 1995 to recent years, EXIOBASE is a cornerstone resource for analyzing the environmental impacts of economic activity and supporting strategies for sustainable development.
+
+#### Key Data Components
+
+For this study, we extracted specific data components from the EXIOBASE database to analyze emissions by country, sector, and over time. The primary datasets used include Inter-Industry Flows, capturing inputs and outputs exchanged among sectors. Secondly, Final Demand, reflecting consumption, investment, and export activities in each country and thirdly, Environmental Extensions, documenting emissions associated with economic activities.
+
+#### Scope and Time Frame
+
+The database spans 49 countries and regions and covers the years 1995 to 2022. This extensive temporal and geographical coverage enables a detailed analysis of long-term developments and contrasts between developed and developing economies.
+
+#### Data Structure and Accessibility
+
+EXIOBASE's structured data architecture facilitates seamless integration into analytical workflows. Key datasets include: 1. Transactions Matrix (Z): Represents intersectoral flows of products within the economy. For 164 products and 44 countries (plus regions), this matrix has dimensions of 8,036 × 8,036. 2. Final Demand Matrix (Y): Records consumption for six final demand categories, such as households and government, across 44 countries and five regions. The aggregated matrix provides a concise view of total final consumption per country or region. 3. Inter-industry Coefficients Matrix (A): Derived from transactions and gross output, this matrix captures the direct input requirements for production.
+
+#### Data Quality and Limitations
+
+While EXIOBASE's granularity and scope make it an invaluable resource, its reliance on interpolation and extrapolation for more recent years introduces uncertainty, particularly at finer geographic or sectoral scales. Despite these limitations, it remains suitable for national and global-level analyses.
+
+# 3. Applications of the Output Visualisation Tool
+
+This section will provide a detailed explaination how the process behind the tool works as well as a step-by-step explanation of how the tool can be utilized by users within the R programming environment. Following this, three practical applications will be presented, focusing on the economies of France, the Netherlands, and Germany.
+
+## 3.1 Guidance on the Output Visualisation Tool
+
+When the user opens the Production Output Visualisation Tool, they are facing the first of the tool's information output setting as it prompts the user to select the country they wish to analyze.
+
+###  3.1.1 Use Case I: File Path Navigator
+
+#### Step 1 - Country Selection
+
+For this first sub-step, the script begins to create a vector of file paths for all Excel files in a specified folder. This search targets files that end in .xls, ensuring only the relevant data sources are identified. In a second sub-step the code extracts the first two characters, which serve as a proxy for the country code from each file’s name. This sub-step uses substring operations and collates the results into a set of unique values, effectively mapping each file to a specific country. The script displays a user-friendly list of available country codes in a third sub-step, each tagged with a numeric index. By enumerating the available codes, the code prepares the user to make an informed selection of which country’s data to visualize or analyze. In a fourth sub-step the user is then prompted to enter the number corresponding to their desired country code. To safeguard against invalid inputs, the code checks whether the user-provided number is within the allowable range. If it falls outside the list of valid options, the script halts and requests a valid selection, repeating sub-step four. Once the input is validated, the code retrieves the specified country code in a last sub-step and confirms this choice back to the user. This variable (selected_country) ensures that any follow-up functions focus on the correct dataset.
+
+The user is presented with a tabular output that displays the list of available countries, each associated with a unique country number and code.
+
+**Table 1:** Country Choice Table 
+
+| Country Number | Country Code | Country Name     |
+|----------------|--------------|------------------|
+| 1              | AT           | Austria          |
+| 2              | AU           | Australia        |
+| 3              | BE           | Belgium          |
+| 4              | BG           | Bulgaria         |
+| 5              | BR           | Brazil           |
+| ...            | ...          | ...              |
+| 49             | ZA           | South Africa     |
+| Selected Country | AT         |                  |
+
+#### Step 2 - File Location Navigation
+
+In the next step, the code segment refines the data-loading process by filtering the list of Excel files to those that match the user’s previously selected country code. Specifically, it checks each filename for a prefix that corresponds to the country code (e.g., “FR_”), thereby extracting only the files relevant to that country. If no matching files are found, the script terminates with an error message, prompting the user to verify the country code or the file organization. Otherwise, it prints out the paths of all files associated with the selected country, ensuring full transparency before proceeding to subsequent data-handling and analysis steps.
+
+By reviewing these file paths, the user can verify that the intended data is indeed available, ensuring an error-free workflow before proceeding with further processing or visualization steps on his own.
+
+###  3.1.2 Use Case II: Creation of Output Tables
+
+In another use case of this application, the user can further decide to proceed with the application to create randomized output tables for him. He can either repeat step 1 and 2 from section 3.1.1 or redo them for another economy they prefer to analyze.
+
+#### Step 3 - Checkpoint for Sector Data
+
+This step combines data from each file associated with the selected country into one unified table. It reads a specific sheet containing sector-level information for each year, identified from the file name. After integrating the contents of all files and standardizing their format, the tool displays a set of one-hundred randomly chosen rows. These rows reflect the actual sectors available for selection, giving the user an immediate overview of the data structure and content. This process ensures that any subsequent analysis, such as summarizing outputs or generating visual representations, can be conducted on a consistent dataset while allowing the user to validate its accuracy and completeness. 
+This table is solely generated for the purposes of error-checking and validating functionality; therefore, it is not included in this report.
+
+#### Step 4 - Output of Filtered Sector Data
+
+Further, the script facilitates the selection of a sector from the dataset by presenting the user with a randomized list of sector names and guiding them through the process of filtering data based on their selection. Firstly, the user is presented with a comprehensive yet non-redundant list of sectors, of which the tool randomly selects one-hundred. The randomly chosen sectors are displayed to the user, each tagged with a numeric identifier. The user is then  prompted to select a sector by entering the number associated with their desired option. The input is validated to ensure it is within the range of displayed options. If the input is invalid, the process halts, and the user is asked to re-run the step. Once the user selects a sector, the code filters the combined dataset to include only rows associated with the chosen sector. This filtered dataset is then displayed to the user, offering a preview of the data for validation and further exploration.
+
+The user is presented with a tabular output that displays the list of one-hundred randomly drawn sectors he can further pursue his analysis for the beforehand selected economy with as well as their sector choice he has drawn from in the console input.
+
+**Table 2:** Example of randomly selected sector names and the chosen sector.
+
+| No. | Sector Name                                                                                                 |
+|-----|------------------------------------------------------------------------------------------------------------|
+| 1   | Real estate activities (70)                                                                                |
+| 2   | Transport via railways                                                                                     |
+| 3   | Fishing, operating of fish hatcheries and fish farms; service activities incidental to fishing (05)        |
+| 4   | Mining of nickel ores and concentrates                                                                     |
+| 5   | Recreational, cultural and sporting activities (92)                                                        |
+| 6   | Processing of Food products nec                                                                            |
+| 7   | Manufacture of fish products                                                                               |
+| 8   | Final consumption expenditure by government                                                                |
+| 9   | Manufacture of fabricated metal products, except machinery and equipment (28)                              |
+| 10  | Tanning and dressing of leather; manufacture of luggage, handbags, saddlery, harness and footwear (19)    |
+
+**Selected Sector:** Fishing, operating of fish hatcheries and fish farms; service activities incidental to fishing (05)  
+
+###  3.1.3 Use Case III: Visualising Ex-Post Output Trends
+
+In a final use case the user can decide to visualise an ex-post output trend of the selected economies output sector. Therefore, he has to conduct all the subsequent steps to perform the output trend visualisation.
+
+When running this code, the user will be prompted with the creation of an interactive visualization that highlights the ex-post output trends for the selected sector within the chosen country. The resulting plot displays the production values over time, with years on the x-axis and production levels on the y-axis. The data points are marked with red dots, connected by a blue line to emphasize the trend.
+
+This immediate and dynamic graphic enables the user to assess temporal patterns, identify key ex-post trends, and derive insights into the sector’s performance over time from 1995 to 2022.
+
+Selected examples of these can now be seen in tailored applications for the economies of France, The Netherlands and Germany.
+
+
+## 3.2 Applications
+
+### 3.2.1 File Path Navigator - France 
+
+In this presented case, the user wants to find all corresponding file paths for the economy of France (16) from 1995 to 2022, so they can conduct independent analysis for his research project. Therefore, he chooses the economy of France in a first step:
+
+**Table 3:** Country Choice Table - Choice: France 
+
+| Country Number | Country Code | Country Name     |
+|----------------|--------------|------------------|
+| 1              | AT           | Austria          |
+| 2              | AU           | Australia        |
+| 3              | BE           | Belgium          |
+| 4              | BG           | Bulgaria         |
+| 5              | BR           | Brazil           |
+| ...            | ...          | ...              |
+| 16             | FR           | France           |
+| ...            | ...          | ...              |
+| 49             | ZA           | South Africa     |
+| Selected Country | FR         |                  |
+
+After confirming their choice for France, the user is presented with a comprehensive list of file paths for the selected country. These paths correspond to datasets covering the specified time frame, providing a clear navigation structure for accessing the required data:
+
+**Table 4 :** List of user-dependent data file path for France.
+
+| No. | File Path                                                                                                                                               |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_1995.xls          |
+| 2   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_1996.xls          |
+| 3   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_1997.xls          |
+| 4   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_1998.xls          |
+| 5   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_1999.xls          |
+| ... | ...                                                                                                                                                     |
+| 27  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_2021.xls          |
+| 28  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/FR_2022.xls          |
+
+They have now gained direct access to the relevant datasets, allowing them to perform detailed analyses and generate output tables specific to the French economy. 
+
+### 3.2.2 Creation of Output Tables - The Netherlands
+
+In a second case, the user wants to create an output table for the economy of The Netherlands from 1995 to 2022 in the "Cast of Metals" sector with the Production Visualisation Tool. Therefore, he chooses The Netherlands (32) from the list of possible options: 
+
+**Table 6 :** Country Choice Table - Choice: The Netherlands 
+
+| Country Number | Country Code | Country Name     |
+|----------------|--------------|------------------|
+| 1              | AT           | Austria          |
+| 2              | AU           | Australia        |
+| 3              | BE           | Belgium          |
+| 4              | BG           | Bulgaria         |
+| 5              | BR           | Brazil           |
+| ...            | ...          | ...              |
+| 32             | NE           | The Netherlands  |
+| ...            | ...          | ...              |
+| 49             | ZA           | South Africa     |
+| Selected Country | NE         |                  |
+
+Furthermore, they are presented with the file path to the corresponding sector output data, as displayed here: 
+
+**Table 6 :** List of user-dependent data file path for The Netherlands.
+
+| No. | File Path                                                                                                                                               |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_1995.xls          |
+| 2   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_1996.xls          |
+| 3   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_1997.xls          |
+| 4   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_1998.xls          |
+| 5   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_1999.xls          |
+| ... | ...                                                                                                                                                          |
+| 27  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_2021.xls          |
+| 28  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/NL_2022.xls          |
+
+The user continues to select one of the sectors they would like to receive knowledge about the connected output data. In the case of The Netherlands a sample of six entries from the sector of “Casting of metals” across multiple years are shown. Each row in the table corresponds to a specific year and displays key production attributes, including intermediate use, value added, and total output. The columns labeled “UT interuse” and “UT value added” provide a breakdown of how the sector’s output is allocated, while “Value” and “ST total” reflect overall production levels. The “Year” column confirms the timeframe (1995 through 2000), enabling the user to observe how this sector evolves over time. He would be able to do this analysis over and over again for all available sectors.
+
+**Table 7 :** Randomly selected sectors and the filtered data for the "Casting of Metals" sector.
+
+**Shortened Table of Random Sectors for The Netherlands**
+
+| No. | Sector Name                                                                  |
+|-----|------------------------------------------------------------------------------|
+| 1   | Mining of precious metal ores and concentrates                               |
+| 2   | Private households with employed persons (95)                                |
+| 3   | Manufacture of other non-metallic mineral products n.e.c.                    |
+| 4   | Casting of metals                                                            |
+| 5   | Re-processing of secondary aluminium into new aluminium                      |
+| 6   | Production of electricity by solar thermal                                   |
+| 7   | Re-processing of secondary lead into new lead, zinc and tin                  |
+| 8   | Manufacture of glass and glass products                                      |
+| 9   | Activities of membership organisation n.e.c. (91)                            |
+| 10  | Poultry farming                                                              |
+| ... | ... |
+| 100 | Cultivation of paddy rice |
+
+**Selected Sector:** Casting of metals
+
+**Filtered Data - Casting of Metals sector**
+
+| Nr | Name               | UT interuse | UT value added | Value       | Year |
+|----|--------------------|-------------|----------------|-------------|------|
+| 1  | Casting of metals  | 586178160   | 432107529      | 1018285689  | 1995 |
+| 2  | Casting of metals  | 607094848   | 370963313      | 978058162   | 1996 |
+| 3  | Casting of metals  | 702518858   | 345889776      | 1048408634  | 1997 |
+| 4  | Casting of metals  | 624498669   | 326464273      | 950962942   | 1998 |
+| 5  | Casting of metals  | 720160642   | 359939560      | 1080100202  | 1999 |
+| 6  | Casting of metals  | 769789967   | 411710017      | 1181499983  | 2000 |
+
+
+### 3.2.3 Visualising Ex-Post Output Trends - Germany
+
+In the third case, the user decides to conduct the whole analysis with an additional visualization for the Production of electricity by hydrogen sector in Germany from 1995 to 2022. Therefore, he chooses Germany (11) from the list of possible options: 
+
+**Table 8:** Country Choice Table - Choice: Germany
+
+| Country Number | Country Code | Country Name     |
+|----------------|--------------|------------------|
+| 1              | AT           | Austria          |
+| 2              | AU           | Australia        |
+| 3              | BE           | Belgium          |
+| 4              | BG           | Bulgaria         |
+| 5              | BR           | Brazil           |
+| ...            | ...          | ...              |
+| 11             | DE           | Germany          |
+| ...            | ...          | ...              |
+| 49             | ZA           | South Africa     |
+| Selected Country | DE         |                  |
+
+Furthermore, they are presented with the file path to the corresponding sector output data, as displayed here:
+
+**Table 9:** List of user-dependent data file path for Germany.
+
+| No. | File Path                                                                                                                                               |
+|-----|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_1995.xls          |
+| 2   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_1996.xls          |
+| 3   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_1997.xls          |
+| 4   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_1998.xls          |
+| 5   | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_1999.xls          |
+| ... | ...                                                                                                                                                          |
+| 27  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_2021.xls          |
+| 28  | /Users/maximilianstein/Desktop/Uni Dauphine/Master 1/Master 1 - Semester 1/Data_Management_Class_24/Graded Labs/datamanproject/SUT/DE_2022.xls          |
+
+Now, the user continues to select one of the sectors they would like to receive knowledge about the connected output data. In the case of Germany, a sample of six entries from the sector of “” across multiple years are shown. Each row in the table corresponds to a specific year and displays key production attributes, including intermediate use, value added, and total output. The columns labeled “UT interuse” and “UT value added” provide a breakdown of how the sector’s output is allocated, while “Value” and “ST total” reflect overall production levels. The “Year” column confirms the timeframe (1995 through 2000), enabling the user to observe how this sector evolves over time. He would be able to do this analysis over and over again for all available sectors.
+
+
+**Table 10:** Randomly selected sectors and the filtered data for the "Casting of Metals" sector.
+
+**Shortened Table of Random Sectors for Germany**
+
+| No. | Sector Name                                                                            |
+|-----|----------------------------------------------------------------------------------------|
+| 1   | Publishing, printing and reproduction of recorded media (22)                           |
+| 2   | Cultivation of vegetables, fruit, nuts                                                 |
+| 3   | Insurance and pension funding, except compulsory social security (66)                  |
+| 4   | Cultivation of cereal grains nec                                                       |
+| 5   | Cultivation of plant-based fibers                                                      |
+| 6   | Final consumption expenditure by non-profit organisations serving households (NPISH)   |
+| 7   | Re-processing of secondary plastic into new plastic                                    |
+| 8   | Mining of coal and lignite; extraction of peat (10)                                    |
+| 9   | Manufacture of textiles (17)                                                           |
+| 10  | Manufacture of tobacco products (16)                                                   |
+| ... | ... |
+| 53 | Production of electricity by hydro |
+| ... | ... |
+| 100 | Sea and coastal water transport  |
+
+
+**Filtered Data - Production of electricity by hydro**
+
+| Nr | Name                              | UT interuse | UT value added | Value       | Year |
+|----|-----------------------------------|-------------|----------------|-------------|------|
+| 1  | Production of electricity by hydro| 184035421   | 294851813      | 478887234   | 1995 |
+| 2  | Production of electricity by hydro| 174701430   | 492130850      | 666832280   | 1996 |
+| 3  | Production of electricity by hydro| 166171545   | 546117262      | 712288807   | 1997 |
+| 4  | Production of electricity by hydro| 177599921   | 551491574      | 729091495   | 1998 |
+| 5  | Production of electricity by hydro| 202496613   | 570923802      | 773420415   | 1999 |
+| 6  | Production of electricity by hydro| 232687733   | 566136989      | 798824722   | 2000 |
+
+In the last step, the user wants to visualise this output table. Using the last code, they will be prompted with the creation of an interactive visualization that highlights the ex-post output trends for the production of electricity by hydro within Germany from 1995 to 2022. The resulting plot displays the production values over time, with years on the x-axis and production levels on the y-axis. The data points are marked with red dots, connected by a blue line to emphasize the ex-post trend.
+
+This immediate and dynamic graphic enables the user now to assess temporal patterns, identify key ex-post trends, and derive insights into the sector’s performance over time from 1995 to 2022 in Germany.
+
+![Visualisation of "Electricity by Hydrogen Production" in Germany from 1995 to 2022](Germany.png)
+
+# 4 Application Outlook - Leontief Calculations
+
+Another application that we started to work on and that can further assess production demand shocks is the Leontief Model, which is used to assess how changes in demand for one or more sectors impact the outputs of related sectors in an economy.
+
+### Methodological Application
+
+The Leontief model provides a framework for analyzing the interconnectedness of sectors within an economy. It breaks down the production process and the relationships between intermediate consumption, sectoral outputs, and final demand. The core concepts of the model are detailed as follows:
+
+#### Sectors and Outputs
+
+The economy is conceptualized as comprising $n$ distinct sectors, each producing a specific amount of output. These outputs are represented by a column vector:
+
+$$
+x =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_n
+\end{bmatrix}
+$$
+
+Here,  $x_i$ represents the total production of sector  $i$. Sectors rely on outputs from other sectors as inputs to sustain their production. This relationship is captured in the input-output matrix $A$. The entry  $a_{ij}$  in  A  denotes the quantity of output from sector  $j$  required to produce one unit of output in sector  $i$. The demand for a sector’s output that originates outside the inter-sectoral exchanges is represented by the vector:
+
+$$
+y =
+\begin{bmatrix}
+y_1 \\
+y_2 \\
+\vdots \\
+y_n
+\end{bmatrix}
+$$
+
+Here, $d_i$ represents the final demand for the $i-th$ sector’s output, such as consumption by households, government, or exports.
+
+The fundamental relationship in the Leontief model combines the concepts of intermediate consumption and final demand:
+
+$$x = Ax + y$$
+
+This equation states that the total output x of each sector is the sum of intermediate consumption (inputs consumed by other sectors) and final demand $d$.
+
+To solve for the total output vector x, the equation is rearranged as follows:
+
+$$x - Ax = y \quad \text{or} \quad (I - A)x = y$$
+
+Here, $I$ represents the identity matrix, and $(I - A)$ is referred to as the Leontief matrix. The solution for x is obtained by inverting the Leontief matrix:
+
+$$x = (I - A)^{-1}y$$
+Our model here provides an interactive simulation where users can select one or more sectors by entering their corresponding numbers as well as the magnitude of demand shocks for these sectors. Once the inputs are provided, the code calculates and outputs a table showing the impact on each sector, highlighting the ripple effects of the shock. A total demand impact value, sums up changes across all sectors.
+
+An example, where the electricity, gas, steam and air conditioning sector as well as electrical equipment sector are effected, can be seen here:
+
+**Table:** Example of demand shocks applied to selected sectors:
+
+| Sector Name                                      |
+|--------------------------------------------------|----------------|
+| Electricity, gas, steam and air conditioning     |   
+| Electrical equipment                             |   
+
+**Total Demand Impact on All Sectors:** -2.973859e-09
+
+While current computational constraints limit its application to sector in- and output data of 65 sectors in France for the year 2020, users gain valuable insights into intersectoral dependencies and can explore various scenarios. Future improvements might focus on optimizing computations for larger datasets and time frames or integrating visualizations, to enhance interpretability and user experience.
+
+# 5 Conclusion
+
+This project demonstrates the development and application of an R-based Production Output Visualization Tool to bridge the gap between complex input-output datasets and user-centric analysis. Leveraging the EXIOBASE v3.8 database, the tool empowers users to explore economic outputs for various sectors across multiple countries from 1995 to 2022. Through an accessible workflow that includes file path navigation, sectoral output table generation, and ex-post trend visualization, the tool enables users to derive actionable insights into sector-specific dynamics and intersectoral dependencies.
+
+The case studies for France, The Netherlands, and Germany illustrate the tool’s versatility in analyzing production trends and visualizing economic changes over time. These examples highlight the tool’s potential for practical applications in student-based research, providing a robust framework for investigating the intersection of economic activity and environmental impacts.
+
+Additionally, this project started to explore the application of the Leontief Model to simulate demand shocks and analyze their effects across related sectors. While initial results showcased its potential for examining intersectoral dynamics, computational constraints limited the scope to smaller datasets and are a good fundation for future work, which can optimize these calculations for larger datasets and longer time frames.
+
+In conclusion, the Production Output Visualization Tool represents a student-created approach making complex input-output data accessible and actionable. By enabling detailed sectoral analysis and providing a foundation for advanced modeling, its further advanced form could support researchers, policymakers, and stakeholders in addressing the pressing challenges of climate change and sustainable economic development.
