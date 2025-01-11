@@ -4,45 +4,57 @@ format: html
 jupyter: true
 ---
 
-# Setup
+# Production Output Visualisation Tool
 
-```{r}
+```{r Set-Up}
+# message: off
 # Load necessary libraries
 library(readxl)
 library(dplyr)
 library(plotly)
+library(here)
 
-# Set the folder containing country subfolders
-main_folder <- "~/Desktop/datamanagementlinux/datamanproject/SUT(1)"
+# Define the main folder using the `here` package
+main_folder <- here("SUT")
+
 ```
 
+# Use case I: File Path Navigator
 
-```{r}
-# Display available country codes
+```{r Choice of Economy}
+
+# Provides all Excel files in the main folder
+excel_files <- list.files(main_folder, pattern = "\\.xls$", full.names = TRUE)
+
+# Extracts unique country codes (first two letters of the file names)
+country_codes <- unique(substr(basename(excel_files), 1, 2))
+
+# Displays available country codes
 cat("Available countries:\n")
 for (i in seq_along(country_codes)) {
   cat(paste(i, "-", country_codes[i], "\n"))
 }
 
-# Prompt the user to select a country by number
+# Prompts the user to select a country by number
 selected_country_index <- as.numeric(readline(prompt = "Enter the number corresponding to the country you'd like to view (e.g., 1 for AT): "))
 
-# Validate the input
+# Validates the input
 if (is.na(selected_country_index) || selected_country_index < 1 || selected_country_index > length(country_codes)) {
   stop("Invalid country selection. Please enter the number corresponding to a country from the list.")
 }
 
-# Get the selected country code
+# Prompts the selected country code
 selected_country <- country_codes[selected_country_index]
 cat("Selected country:", selected_country, "\n")
 
 
 ```
-```{r}
-# Filter files for the selected country
+
+```{r Filepath Navigator and Verification}
+# Filters files for the selected country
 country_files <- excel_files[grepl(paste0("^", selected_country, "_"), basename(excel_files))]
 
-# Debug: Check filtered files
+# Debugs and checks filtered files
 if (length(country_files) == 0) {
   stop("No files found for the selected country. Please check the country code or file structure.")
 } else {
@@ -50,112 +62,116 @@ if (length(country_files) == 0) {
   print(country_files)
 }
 
-
 ```
 
-```{r}
-# Get all Excel files in the main folder
+# Use case II: Creation of Output Tables
+
+```{r Choice of Economy II}
+# Provides all Excel files in the main folder
 excel_files <- list.files(main_folder, pattern = "\\.xls$", full.names = TRUE)
 
-# Extract unique country codes (first two letters of the filenames)
+# Extracts unique country codes (first two letters of the filenames)
 country_codes <- unique(substr(basename(excel_files), 1, 2))
 
-# Display available country codes
+# Displays available country codes
 cat("Available countries:\n")
 for (i in seq_along(country_codes)) {
   cat(paste(i, "-", country_codes[i], "\n"))
 }
 
-# Prompt the user to select a country by number
+# Prompts the user to select a country by number
 selected_country_index <- as.numeric(readline(prompt = "Enter the number corresponding to the country you'd like to view (e.g., 1 for AT): "))
 
-# Validate the input
+# Validates the input
 if (is.na(selected_country_index) || selected_country_index < 1 || selected_country_index > length(country_codes)) {
   stop("Invalid country selection. Please re-run this step.")
 }
 
-# Get the selected country code
+# Prompts the selected country code
 selected_country <- country_codes[selected_country_index]
 cat("Selected country:", selected_country, "\n")
+```
 
-# Filter files for the selected country
+```{r Filepath Navigator and Verification II}
+
+# Filters files for the selected country
 country_files <- excel_files[grepl(paste0("^", selected_country, "_"), basename(excel_files))]
 
-# Validate that files were found
+# Validation that files were found
 if (length(country_files) == 0) {
   stop("No files found for the selected country. Please check the country code or file structure.")
 }
 
-# Debug: Print the filtered files
+# Debugs and prints the filtered files
 cat("Files for the selected country:\n")
 print(country_files)
 
 ```
-```{r}
-# Initialize an empty data frame
+
+
+```{r Checkpoint - Shortened Available Output Sector Table}
+# Initializes an empty data frame
 combined_data <- data.frame()
 
-# Loop through each file and extract data
+# Loops through each file and extract data
 for (file in country_files) {
-  # Extract the year from the filename
+  
   year <- as.numeric(gsub("\\D", "", basename(file)))
-  
-  # Read the Excel file and select the `DiffFinInd` sheet
   data <- read_excel(file, sheet = "DiffFinInd")
-  
-  # Add the year column to the data
   data$Year <- year
   
-  # Combine the data into a single data frame
+  # Combines the data into a single data frame
   combined_data <- bind_rows(combined_data, data)
 }
 
-# Rename the column representing "UT total" to "Value" (adjust based on your actual column name)
 combined_data <- combined_data %>%
-  rename(Value = `UT total`)  # Adjust if necessary (e.g., `UT Total` or other variations)
+  rename(Value = `UT total`)
 
-# Debug: Print the first few rows of the combined data
+# Debugs and prints the first few rows of the combined data
 cat("Combined data for", selected_country, ":\n")
 print(head(combined_data))
 
 ```
 
-```{r}
-# Get unique sector names
+```{r Randomised Output Table Choice}
+# Gets unique sector names
 sector_names <- unique(combined_data$Name)
 
-# Randomly select 10 sector names
-random_sectors <- sample(sector_names, 10)
+# Randomly select s10 sector names
+random_sectors <- sample(sector_names, 100)
 
-# Display the random sectors
+# Displays the random sectors
 cat("Here are 10 random sector names to choose from:\n")
 for (i in seq_along(random_sectors)) {
   cat(paste(i, "-", random_sectors[i], "\n"))
 }
 
-# Prompt the user to select a sector by number
+# Prompts the user to select a sector by number
 selected_sector_index <- as.numeric(readline(prompt = "Enter the number corresponding to the sector you'd like to view: "))
 
-# Validate the input
+# Validates the input
 if (is.na(selected_sector_index) || selected_sector_index < 1 || selected_sector_index > length(random_sectors)) {
   stop("Invalid sector selection. Please re-run this step.")
 }
 
-# Get the selected sector name
+# Provides the selected sector name
 selected_sector <- random_sectors[selected_sector_index]
 cat("Selected sector:", selected_sector, "\n")
 
-# Filter the data for the selected sector
+# Filters the data for the selected sector
 filtered_data <- combined_data %>%
   filter(Name == selected_sector)
 
-# Debug: Print the filtered data
+# Debugs and prints the filtered data
 cat("Filtered data for the selected sector:\n")
 print(head(filtered_data))
 
 ```
-```{r}
-# Create an interactive plot
+
+ Use Case III: Visualising Ex-Post Output Trends
+
+```{r Visualising Output Trend}
+
 plot <- plot_ly(
   data = filtered_data,
   x = ~Year,
@@ -166,13 +182,21 @@ plot <- plot_ly(
   marker = list(color = "red")
 ) %>%
   layout(
-    title = paste("Production Evolution for", selected_sector, "in", selected_country),
+    title = list(
+      text = paste0("Production Evolution\nfor ", selected_sector, " in ", selected_country),
+      x = 0.5,         
+      y = 0.95,        
+      font = list(size = 14)  
+    ),
     xaxis = list(title = "Year"),
-    yaxis = list(title = "Production (UT total)")
+    yaxis = list(title = "Production (UT total)"),
+    legend = list(
+      x = 0.01,  
+      y = 0.99   
+    ),
+    margin = list(t = 60)
   )
 
-# Display the plot
 plot
-
 ```
 
