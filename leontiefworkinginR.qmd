@@ -10,7 +10,7 @@ library(dplyr)
 library(MASS) # For pseudo-inverse computation
 
 # Define the file path and sheet name
-file_path <- "/home/loiclebrec/Desktop/datamanagementlinux/datamanagement/SIOT France 2020.xlsx"
+file_path <- here("SIOT France 2020.xlsx")
 sheet_name <- "Sheet1"
 
 # Read the entire sheet
